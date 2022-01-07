@@ -1,0 +1,285 @@
+---
+title: "Statistical Analysis"
+author: "Gert Vanhollebeke"
+date: "06-01-2022"
+output: html_document
+---
+
+```{css, echo=FALSE}
+.codeblock {
+  background-color: LightGray;
+  border: 1px solid DimGray;
+  font-weight: bold;
+}
+.outputblock {
+  background-color: GhostWhite;
+  border: 1px solid DimGray;
+  font-weight: bold;
+}
+.commentstyle {
+  font-weight: bold;
+  color: black; 
+}
+```
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = "F:/Study - EEGRUM/")
+knitr::opts_chunk$set(class.source = "codeblock")
+knitr::opts_chunk$set(class.output = "outputblock")
+```
+
+File which contains the statistical analysis for the article: TODO
+
+**Data location:** TODO
+
+**Code location:** TODO
+
+# 1: Hypothesis 1
+
+In this step, we research whether the total integration of a network can be explained by trait rumination scores of an individual.
+In order to test this, we use linear regression where the questionnaire answers are the predictor variable and the total integration values are the response variable.
+
+
+**Networks tested:**
+
+- **DMN**: The default mode network (DMN), as described by Raichle (2015).  [(https://doi.org/10.1146/annurev-neuro-071013-014030)](https://doi.org/10.1146/annurev-neuro-071013-014030)
+    
+    - *Ventromedial Prefrontal Cortex* (Left/Right)
+    - *Dorsomedial Prefrontal Cortex* (Left/Right)
+    - *Posterior Cingulate Cortex* (Left/Right)
+    - *Precuneus* (Left/Right)
+    - *Angular Gyrus* (Left/Right)
+    
+<br>
+
+- **Zhou**: The network found by Zhou and colleagues (2020) in their meta-analysis. [(https://doi.org/10.1016/j.neuroimage.2019.116287)](https://doi.org/10.1016/j.neuroimage.2019.116287)
+
+    - *Anterior Cingulate Cortex* (Left)
+    - *Precuneus* (Left)
+    - *Superior Temporal Gyrus* (Left)
+    - *Angular Gyrus* (Left)
+    - *Inferior Frontal Gyrus* (Left)
+    
+<br>
+    
+- **Zhou Contralateral**: The contralateral version of the Zhou network.
+
+    - *Anterior Cingulate Cortex* (Right)
+    - *Precuneus* (Right)
+    - *Superior Temporal Gyrus* (Right)
+    - *Angular Gyrus* (Right)
+    - *Inferior Frontal Gyrus* (Right)
+    
+<br>
+
+**Frequency ranges tested: **
+
+
+- **Alpha**: Alpha frequency range: 8 - 13 Hz
+
+- **Beta**: Beta frequency range: 14 - 30 Hz
+
+<br>
+
+**All Combinations:**
+
+- **DMN-Alpha**
+- **DMN-Beta**
+- **Zhou-Alpha**
+- **Zhou-Beta**
+- **ZhouCont-Alpha**
+- **ZhouCont-Beta**
+
+## 1.0: Load data
+
+```{r data_loading}
+#load questionnaire data
+questionnaire_location <- 'Data/RStudio/Questionnaire_Data.csv'
+questionnaire_data <- as.matrix(read.csv(questionnaire_location, TRUE))
+RRS_data <- questionnaire_data[,c('RRS')] #keep only the RRS questionnaire data
+
+#load the total integration data
+TI_alpha_DMN <- as.matrix(read.csv('Data/RStudio/DMN_Alpha_Total_Integration.csv'))
+TI_alpha_Zhou <- as.matrix(read.csv('Data/RStudio/Zhou_Alpha_Total_Integration.csv'))
+TI_beta_DMN <- as.matrix(read.csv('Data/RStudio/DMN_Beta_Total_Integration.csv'))
+TI_beta_Zhou <- as.matrix(read.csv('Data/RStudio/Zhou_Beta_Total_Integration.csv'))
+TI_alpha_Zhou_Cont <- as.matrix(read.csv('Data/RStudio/Zhou_Contralateral_Alpha_Total_Integration.csv'))
+TI_beta_Zhou_Cont <- as.matrix(read.csv('Data/RStudio/Zhou_Contralateral_Beta_Total_Integration.csv'))
+```
+
+## 1.1: Linear Regression
+
+### 1.1.1: DMN-Alpha
+
+```{r dmn_alpha}
+dmn_alpha_predictor <- RRS_data
+dmn_alpha_response <- TI_alpha_DMN
+dmn_alpha_model <- lm(dmn_alpha_response ~ dmn_alpha_predictor)
+summary(dmn_alpha_model)
+```
+
+### 1.1.2: DMN-Beta
+
+```{r dmn_beta}
+dmn_beta_predictor <- RRS_data
+dmn_beta_response <- TI_beta_DMN
+dmn_beta_model <- lm(dmn_beta_response ~ dmn_beta_predictor)
+summary(dmn_beta_model)
+```
+
+### 1.1.3: Zhou-Alpha
+
+```{r zhou_alpha}
+zhou_alpha_predictor <- RRS_data
+zhou_alpha_response <- TI_alpha_Zhou
+zhou_alpha_model <- lm(zhou_alpha_response ~ zhou_alpha_predictor)
+summary(zhou_alpha_model)
+```
+
+### 1.1.4: Zhou-Beta
+
+```{r zhou_beta}
+zhou_beta_predictor <- RRS_data
+zhou_beta_response <- TI_beta_Zhou
+zhou_beta_model <- lm(zhou_beta_response ~ zhou_beta_predictor)
+summary(zhou_beta_model)
+```
+
+### 1.1.5: ZhouCont-Alpha
+
+```{r zhoucont_alpha}
+zhoucont_alpha_predictor <- RRS_data
+zhoucont_alpha_response <- TI_alpha_Zhou_Cont
+zhoucont_alpha_model <- lm(zhoucont_alpha_response ~ zhoucont_alpha_predictor)
+summary(zhoucont_alpha_model)
+```
+
+### 1.1.6: ZhouCont-Beta
+
+```{r zhoucont_beta}
+zhoucont_beta_predictor <- RRS_data
+zhoucont_beta_response <- TI_beta_Zhou_Cont
+zhoucont_beta_model <- lm(zhoucont_beta_response ~ zhoucont_beta_predictor)
+summary(zhoucont_beta_model)
+```
+
+
+## 1.2: Multiple testing correction and explanation
+
+In order to conclude whether the RRS scores are predictive of the total integration of a specific network-frequency range combination. We look if any predictor coefficient has a corresponding significant p-value. The following p-values have been obtained:
+
+- DMN-Alpha: 0.362
+- DMN-Beta: 0.174
+- Zhou-Alpha: 0.00477
+- Zhou-Beta: 0.438
+- ZhouCont-Alpha: 0.0793
+- ZhouCont-Beta: 0.854
+
+We apply false discovery rate (FDR) correction on these values to correct for multiple testing (Benjamini, Y., & Hochberg, Y., (1995))
+
+```{r pvalue_correction_1}
+#load pvalues
+analysis_1_pvalues <- c(0.362, 0.174, 0.00477, 0.438, 0.0793, 0.854)
+#correct pvalues
+analysis_1_pvalues_corrected <- p.adjust(analysis_1_pvalues, "fdr")
+#display pvalues
+analysis_1_pvalues_corrected
+```
+
+We can see that after FDR correction the third analysis still remains significant. We can therefore conclude that the RRS values are predictive for the total integration in the network found by Zhou and colleagues (2020), but only in the alpha frequency range. Since the EEG data that is used is resting-state, eyes closed data, prominent alpha activity is normal and findings in this frequency range are to be expected.
+
+### 1.3: Visualization and explanation of the findings
+
+We will now look at the significant finding, the Zhou-alpha combination. We plot the summary of the model again:
+
+```{r visualization}
+summary(zhou_alpha_model)
+```
+
+We can see that the Zhou_alpha_predictor (the RRS values) is positive (= 0.028739). This means that a positive relationship is present, indicating that the higher the predictor value is (the RRS values), the higher the response value is (the Total Integration). This shows us that the total integration in the Zhou network increases when an individual scores higher on the RRS (rumination response scale). In laymans terms this means that if an individual ruminates more, the "Zhou network" has a higher total integration, which can be interpreted as more functionally connected. Finally we can see that the adjusted R-squared is 0.09551, indicating that roughly 10% of the variance in the data can be explained by the predictor.
+
+Finally we plot the linear regression:
+
+```{r regression plot}
+#import library for visualization
+library(ggplot2)
+#build dataframe
+regression.data <- data.frame(
+                    predictor = zhou_alpha_predictor, 
+                    response = zhou_alpha_response[,1]
+                    )
+#build plot of the predictor and response variable
+regression_graph<-ggplot(regression.data, aes(predictor, response)) + #define data
+                        geom_point() + #show points
+                        geom_smooth(method="lm", col="black") + #plot regression line
+                        ggtitle("Linear regression of the Zhou-Alpha network") + #plot title
+                        theme(plot.title = element_text(hjust = 0.5)) + #center title
+                        labs(x = "Predictor (RRS values)", y = "Response (Total Integration Values") #plot axis names
+
+#plot graph
+regression_graph
+
+```
+
+# 2: Hypothesis 2
+
+Since we found a significant regression coefficient, we subsequently test whether the total integration of the network is driven by a single region in the network or not. To do this, we calculate the normalized degree of each region in the network. Normalized degree can be understood as calculating the degree of each region in the network (= sum of all connections involving this region), but normalizing this value by dividing it by the total integration of the network. This way we can see the contribution of each region to the total integration. The normalized degree can take any value between zero and 1.
+
+Since the Zhou network has five regions, we will perform five tests. We now employ multivariate linear regression with the RRS values as predictor variable, and the normalized degree of each region as the response variables.
+
+### 2.0: Load the data
+```{r load data 2}
+#RRS values are already loaded
+#load normalized degree
+Zhou_alpha_norm_degree <- as.matrix(read.csv('Data/RStudio/Normalized Degree (Alpha 8 - 13).csv'))
+#Anterior Cingulate Cortex L norm. degree
+norm_degree_ACC <- Zhou_alpha_norm_degree[,c("ACC_L")]
+#Precuneus L norm. degree
+norm_degree_Precun <- Zhou_alpha_norm_degree[,c("Precun_L")]
+#Superior Temporal Gyrus L norm. degree
+norm_degree_STG <- Zhou_alpha_norm_degree[,c("STG_L")]
+#Angular Gyrus L norm. degree
+norm_degree_AG <- Zhou_alpha_norm_degree[,c("AngGyr_L")]
+#Inferior Frontal Gyrus L norm. degree
+norm_degree_IFG <- Zhou_alpha_norm_degree[,c("IFG_L")]
+
+#summarize the data
+summary(Zhou_alpha_norm_degree)
+```
+
+### 2.1: Multivariate linear regression
+
+```{r multivariate regression}
+#define predictor
+multivariate_predictor <- RRS_data
+#build model
+multivariate_model <- lm(cbind(norm_degree_ACC, norm_degree_Precun, norm_degree_STG, norm_degree_AG, norm_degree_IFG) ~ multivariate_predictor)
+#summarize model
+summary(multivariate_model)
+```
+
+### 2.2: Multiple testing correction and explanation
+
+We have now five p-values, one for each normalized degree. These are the following:
+
+- Anterior Cingulate Cortex L: 0.652
+- Precuneus L: 0.0934
+- Superior Temporal Gyrus L: 0.0121
+- Angular Gyrus L: 0.116
+- Inferior Frontal Gyrus L: 0.0664
+
+We apply false discovery rate (FDR) correction on these values to correct for multiple testing (Benjamini, Y., & Hochberg, Y., (1995))
+
+```{r multiple correction 2}
+#load pvalues
+analysis_2_pvalues <- c(0.652, 0.0934, 0.0121, 0.116, 0.0664)
+#correct pvalues
+analysis_2_pvalues_corrected <- p.adjust(analysis_2_pvalues, "fdr")
+#display pvalues
+analysis_2_pvalues_corrected
+```
+
+We see that while the initial p-value for the coefficient of the Superior Temporal Gyrus was significant (p = 0.0121), it becomes insignificant after multiple testing correction. We can therefore conclude that the total integration is not driven by the change in normalized degree of an individual region. Replication of these findings should be conducted to solidify these initial findings. The close-to-significant result of the Superior Temporal Gyrus might also be further explained in this replication.
